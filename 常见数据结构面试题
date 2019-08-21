@@ -58,3 +58,68 @@ func parttion(arr []int, low, high int) int {
 	arr[i+1], arr[high] = arr[high], arr[i+1]
 	return i+1
 }
+
+2、（1）用golang标准的堆排序
+package heap
+
+
+type IntHeap []int
+
+func (h IntHeap) Len() int {
+	return len(h)
+}
+func (h IntHeap) Less(i, j int) bool {
+	return h[i] < h[j]
+}
+func (h IntHeap) Swap(i, j int) {
+	h[i], h[j] = h[j], h[i]
+}
+
+func (h *IntHeap) Push(v interface{}) {
+	*h = append(*h, v.(int))
+}
+func (h *IntHeap) Pop() interface{} {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0:n-1]
+	return x
+}
+
+2、（2）
+func HeapSort(s []int) {
+	n := len(s) - 1 // s[0]不用
+	// 构造堆，节点父节点下标为n/2
+	//如果给两个已构造好的堆添加一个共同父节点，
+	//将新添加的节点作一次下沉将构造一个新堆，
+	//由于叶子节点都可看作一个构造好的堆，所以
+	//可以从最后一个非叶子节点开始下沉，直至
+	//根节点，最后一个非叶子节点是最后一个叶子
+	//节点的父节点，角标为N/2
+	for i := n/2; i >= 1; i-- {
+		adjustHeap(s, i, n)
+	}
+	// 下沉排序,把根节点和最后一个值交换，这样就把最后一个值放到末尾，同时n--
+	for n > 1 {
+		s[1], s[n] = s[n], s[1] //将大的放在数组后面，升序排序
+		n--
+		adjustHeap(s, 1, n)
+	}
+}
+// 调整堆, 下沉（由上至下的堆有序化）
+func adjustHeap(s []int, i, n int) {
+	for {
+		j := 2 * i
+		if j > n { // 保证该节点为非叶子节点
+			break
+		}
+		if j < n && s[j+1] > s[j] { // 选择较大的子节点，这个是右孩子比左孩子值大
+			j++
+		}
+		if s[i] >= s[j] { //没下沉到底就构造好堆了
+			break
+		}
+		s[i], s[j] = s[j], s[i] // 把左右孩子的最大值和根节点交换,保证根节点值最大
+		i = j
+	}
+}
